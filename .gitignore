@@ -1,0 +1,48 @@
+venv/
+.docs-crawler-venv/
+.venv/
+__pycache__/
+*.py[cod]
+:memory:.ses
+
+# Local-only workspace for AI guidance, drafts, and generated artifacts.
+.safezone/
+
+# Local requirement/reference material; not part of the submitted product.
+docs/FullStack_BàiTest.pdf
+docs/FullStack_BàiTest.md
+docs/IMPLEMENTATION_BLUEPRINT.md
+docs/REFERENCES.md
+docs/external/
+
+# One-off documentation ingestion tools; not application runtime code.
+requirements-docs-crawler.txt
+requirements-pdf.txt
+scripts/crawl_vnfai_docs.py
+scripts/pdf_to_markdown.py
+tests/test_crawl_vnfai_docs.py
+tests/test_pdf_to_markdown.py
+
+# Secrets and machine-local configuration. Commit .env.example instead.
+.env
+.env.*
+!.env.example
+
+# Python test, coverage, type-check, lint, and packaging output.
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local databases, logs, editors, and operating-system metadata.
+*.sqlite3
+*.sqlite3-*
+*.log
+.idea/
+.vscode/
+.DS_Store
