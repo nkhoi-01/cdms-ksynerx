@@ -1,4 +1,4 @@
-Faker==40.40.0
 fastapi==0.142.2
 httpx==0.28.1
+psycopg[binary]==3.3.6
 uvicorn==0.54.0

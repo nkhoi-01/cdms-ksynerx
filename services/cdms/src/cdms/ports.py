@@ -15,47 +15,41 @@ from .domain import (
 
 class ChangeTransaction(Protocol):
     def claim_delivery(self, source: str, delivery_id: str) -> bool:
-        # TODO: Atomically claim a delivery; return False when already claimed.
+        """Atomically claim a delivery; return False when it already exists."""
         ...
 
     def lock_cursor(self, key: ProductKey) -> StoredProductCursor | None:
-        # TODO: Load and lock the current product cursor for concurrent safety.
+        """Load and lock the product cursor for the current transaction."""
         ...
 
     def append_change(self, change: ProductChange) -> None:
-        # TODO: Append one accepted business change.
+        """Append one accepted business change."""
         ...
 
     def save_cursor(self, cursor: StoredProductCursor) -> None:
-        # TODO: Persist the latest entity version and canonical hash.
+        """Persist the latest version, canonical hash, and snapshot."""
         ...
 
 
 class UnitOfWork(Protocol):
     def transaction(self) -> AbstractContextManager[ChangeTransaction]:
-        # TODO: Return one atomic database transaction boundary.
+        """Return one atomic transaction boundary."""
         ...
 
 
 class ProductSource(Protocol):
     def iter_product_pages(self) -> Iterator[Iterable[dict]]:
-        # TODO: Fetch every source page without leaking HTTP details to the core.
-        ...
-
-
-class SpreadsheetReader(Protocol):
-    def read_rows(self, content: bytes) -> Iterable[dict]:
-        # TODO: Yield validated row dictionaries from an uploaded workbook.
+        """Yield source product pages without leaking HTTP into the core."""
         ...
 
 
 class ChangeQuery(Protocol):
     def list_changes(self, key: ProductKey) -> Iterable[ProductChange]:
-        # TODO: Return ordered changes for the query API.
+        """Return changes in deterministic version order."""
         ...
 
 
 class ObservationSink(Protocol):
     def process(self, observation: IncomingProductObservation) -> ProcessingResult:
-        # TODO: Accept one canonical observation through the central use case.
+        """Process one canonical observation through the central use case."""
         ...

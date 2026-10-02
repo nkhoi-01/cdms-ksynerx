@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cdms}
+      POSTGRES_USER: ${POSTGRES_USER:-cdms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cdms-local-only}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - cdms-postgres-data:/var/lib/postgresql/data
+
+  inventory-emulator:
+    build:
+      context: ./services/inventory-emulator
+    environment:
+      EMULATOR_SEED: ${EMULATOR_SEED:-2604}
+      EMULATOR_PRODUCT_COUNT: ${EMULATOR_PRODUCT_COUNT:-3}
+      CDMS_WEBHOOK_URL: http://cdms:8000/webhooks/products
+      PORT: 8001
+    ports:
+      - "${EMULATOR_PORT:-8001}:8001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  cdms:
+    build:
+      context: ./services/cdms
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cdms}:${POSTGRES_PASSWORD:-cdms-local-only}@postgres:5432/${POSTGRES_DB:-cdms}
+      INVENTORY_BASE_URL: http://inventory-emulator:8001
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-0}
+      PORT: 8000
+    ports:
+      - "${CDMS_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      inventory-emulator:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  cdms-postgres-data:
